@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StarGuide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+  <style>
+    :root {
+      --bg: #070b1a;
+      --text: #e8ebf7;
+      --muted: #9aa3c4;
+      --accent: #f5d77a;
+      --card: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at top, #1a2250 0%, var(--bg) 60%);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    canvas { position: fixed; inset: 0; z-index: 0; }
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      padding: 12vh 24px 40px;
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 600;
+      font-size: clamp(48px, 9vw, 80px);
+      line-height: 1;
+      margin-bottom: 20px;
+    }
+    p.lead {
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.6;
+      margin-bottom: 36px;
+    }
+    .tries {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      backdrop-filter: blur(4px);
+    }
+    .tries h2 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .tries ul { list-style: none; }
+    .tries li {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+    }
+    .tries li:last-child { border-bottom: none; }
+    .tries li::before { content: "✦ "; color: var(--accent); }
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 0 24px 32px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    df-messenger {
+      z-index: 999;
+      --df-messenger-bot-message: #1e2852;
+      --df-messenger-button-titlebar-color: #1a2250;
+      --df-messenger-chat-background-color: #0d1330;
+      --df-messenger-font-color: #e8ebf7;
+      --df-messenger-send-icon: #f5d77a;
+      --df-messenger-user-message: #3a4a8c;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="sky"></canvas>
+
+  <main>
+    <div class="eyebrow">Dialogflow chatbot demo</div>
+    <h1>StarGuide</h1>
+    <p class="lead">
+      A small chatbot that helps you explore the night sky. Ask it about a constellation
+      and it will get ready to tell you more. Open the chat in the bottom right corner.
+    </p>
+
+    <div class="tries">
+      <h2>Try asking</h2>
+      <ul>
+        <li>Hi</li>
+        <li>Tell me about Canes Venatici</li>
+        <li>Is Cassiopeia a constellation?</li>
+        <li>Why is it called the Big Dipper?</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer>Made by Lisa Maevskaia · Haaga-Helia, Introduction to Chatbots · This demo page was created with the help of Claude (Anthropic). The chatbot itself was built by the author in Dialogflow.</footer>
+
+  <df-messenger
+    chat-title="StarGuide"
+    agent-id="75f6f8f0-dcf7-48e9-8577-9d026c41ae81"
+    language-code="en"
+    expand="true"
+  ></df-messenger>
+
+  <script>
+    const canvas = document.getElementById('sky');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = Array.from({ length: Math.floor(canvas.width * canvas.height / 4000) }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.3 + 0.2,
+        phase: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.02 + 0.005
+      }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const s of stars) {
+        s.phase += s.speed;
+        ctx.globalAlpha = 0.4 + Math.sin(s.phase) * 0.35;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+  </script>
+</body>
+</html>
